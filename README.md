@@ -4,7 +4,9 @@ A Roblox script hub with a signature **Blue & Yellow** theme. Currently supports
 
 ## Quick Start
 
-```loadstring(game:HttpGet("https://raw.githubusercontent.com/sd-community1/VNDXS-HUB/refs/heads/main/Loader.luau"))()```
+```lua
+loadstring(game:HttpGet("https://raw.githubusercontent.com/sd-community1/VNDXS-HUB/refs/heads/main/Loader.luau"))()
+```
 
 ## Credits
 
