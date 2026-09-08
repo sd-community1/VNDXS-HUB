@@ -78,8 +78,15 @@ local DEFAULT_USER_DATA = {
     AnalyticsOptIn  = nil,
 }
 
--- HttpService مباشرة بدون الاعتماد على Services metatable
-local HttpService = game:GetService("HttpService")
+-- JSON helpers آمنة بدون الاعتماد على HttpService مسبقاً
+local function JSONEncode(data)
+    local hs = game:GetService("HttpService")
+    return hs:JSONEncode(data)
+end
+local function JSONDecode(str)
+    local hs = game:GetService("HttpService")
+    return hs:JSONDecode(str)
+end
 
 local function LoadUserData()
     -- تحقق أن Environment تحمّل بنجاح أولاً
@@ -96,15 +103,15 @@ local function LoadUserData()
     end
     local path = "VNDXS/UserData.json"
     if not env.isfile(path) then
-        env.writefile(path, HttpService:JSONEncode(DEFAULT_USER_DATA))
+        env.writefile(path, JSONEncode(DEFAULT_USER_DATA))
         return DEFAULT_USER_DATA
     end
     local ok, decoded = pcall(function()
-        return HttpService:JSONDecode(env.readfile(path))
+        return JSONDecode(env.readfile(path))
     end)
     if not ok or type(decoded) ~= "table" then
         warn("[VNDXS] Corrupt UserData, resetting.")
-        env.writefile(path, HttpService:JSONEncode(DEFAULT_USER_DATA))
+        env.writefile(path, JSONEncode(DEFAULT_USER_DATA))
         return DEFAULT_USER_DATA
     end
     for key, default in pairs(DEFAULT_USER_DATA) do
@@ -117,7 +124,7 @@ local function SaveUserData(data)
     local env = VNDXS.Environment
     if not env.writefile then return end
     pcall(function()
-        env.writefile("VNDXS/UserData.json", HttpService:JSONEncode(data))
+        env.writefile("VNDXS/UserData.json", JSONEncode(data))
     end)
 end
 
