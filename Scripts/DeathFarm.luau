@@ -14,7 +14,7 @@ while not game:IsLoaded() do
 end
 
 -- ==================== Constants ====================
-local SCRIPT_URL    = "https://raw.githubusercontent.com/YOUR_USERNAME/VNDXS-HUB/refs/heads/main/Scripts/DeathFarm.luau"
+local SCRIPT_URL    = "https://raw.githubusercontent.com/sd-community1/VNDXS-HUB/refs/heads/main/Scripts/DeathFarm.luau"
 local HOTEL_PLACE   = 6516141723   -- Lobby
 local MAIN_PLACE    = 6839171747   -- Hotel Floor 1
 
