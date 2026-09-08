@@ -12,7 +12,7 @@ end
 -- ==================== Config ====================
 local VERSION = "1.0.0"
 local HUB_NAME = "VNDXS HUB"
-local BaseUrl = "https://raw.githubusercontent.com/YOUR_USERNAME/VNDXS-HUB/refs/heads/main/"
+local BaseUrl = "https://raw.githubusercontent.com/sd-community1/VNDXS-HUB/refs/heads/main/"
 
 -- قائمة الألعاب المدعومة
 local GameList = {
