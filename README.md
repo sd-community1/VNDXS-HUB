@@ -5,8 +5,7 @@ A Roblox script hub with a signature **Blue & Yellow** theme. Currently supports
 ## Quick Start
 
 ```lua
-loadstring(game:HttpGet("https://raw.githubusercontent.com/YOUR_USERNAME/VNDXS-HUB/refs/heads/main/Loader.luau"))()
-```
+https://raw.githubusercontent.com/sd-community1/VNDXS-HUB/refs/heads/main/Loader.luau```
 
 > استبدل `YOUR_USERNAME` باسم حسابك على GitHub
 
