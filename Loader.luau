@@ -82,6 +82,11 @@ local DEFAULT_USER_DATA = {
 local HttpService = game:GetService("HttpService")
 
 local function LoadUserData()
+    -- تحقق أن Environment تحمّل بنجاح أولاً
+    if not VNDXS.Environment or type(VNDXS.Environment) ~= "table" then
+        warn("[VNDXS] Environment not loaded, using default UserData.")
+        return DEFAULT_USER_DATA
+    end
     local env = VNDXS.Environment
     if not (env.writefile and env.readfile and env.isfile) then
         return DEFAULT_USER_DATA
