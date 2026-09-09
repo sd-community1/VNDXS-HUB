@@ -849,6 +849,14 @@ end
 -- ==================== SETTINGS TAB ====================
 VNDXS.Interface.ApplySettingsTab(Tabs.Settings and Window or Window)
 
+-- Credits Tab
+local ok, applyCredits = pcall(function()
+    return loadstring(game:HttpGet(VNDXS.BaseUrl .. "Components/CreditsTab.luau"))()
+end)
+if ok and type(applyCredits) == "function" then
+    applyCredits(Window)
+end
+
 Library:Notify("VNDXS HUB | One Shot loaded! 🎯", 5)
 
 -- تنظيف عند الإغلاق
