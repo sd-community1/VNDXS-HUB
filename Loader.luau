@@ -12,7 +12,12 @@ local VERSION = "1.0.0"
 local BaseUrl = "https://raw.githubusercontent.com/sd-community1/VNDXS-HUB/refs/heads/main/"
 
 local GameList = {
-    [2440500124] = "Doors"
+    -- DOORS
+    [2440500124] = "Doors",
+    -- BLOX FRUITS (3 بحار)
+    [2753915549] = "BloxFruits",  -- First Sea
+    [4442272183] = "BloxFruits",  -- Second Sea
+    [7449423635] = "BloxFruits",  -- Third Sea
 }
 
 -- SafeLoad
