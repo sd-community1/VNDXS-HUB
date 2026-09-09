@@ -13,7 +13,8 @@ local BaseUrl = "https://raw.githubusercontent.com/sd-community1/VNDXS-HUB/refs/
 
 local GameList = {
     -- DOORS
-    [2440500124] = "Doors",
+    [6516141723] = "Doors",  -- Lobby
+    [6839171747] = "Doors",  -- Hotel Floor 1
     -- BLOX FRUITS (3 بحار)
     [2753915549] = "BloxFruits",  -- First Sea
     [4442272183] = "BloxFruits",  -- Second Sea
