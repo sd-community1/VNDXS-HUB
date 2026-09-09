@@ -466,7 +466,7 @@ Globals.DoorsNotify = function(NotifyOptions)
 	end)
 end
 
-Globals.STX = loadstring(game:HttpGet("https://raw.githubusercontent.com/sd-community1/VNDXS-HUB/refs/heads/main/Components/STX.luau"))()
+Globals.STX = loadstring(game:HttpGet("https://raw.githubusercontent.com/YOUR_USERNAME/VNDXS-HUB/refs/heads/main/Components/STX.luau"))()
 Functions.Notify = function(Settings)
 	local HiddenContainer = GetHiddenContainer()
 
@@ -4624,4 +4624,12 @@ end)
 
 while not Globals.MainUI do task.wait() end
 VNDXS.Interface.ApplySettingsTab(Window)
+
+-- Credits Tab
+local ok, applyCredits = pcall(function()
+    return loadstring(game:HttpGet(VNDXS.BaseUrl .. "Components/CreditsTab.luau"))()
+end)
+if ok and type(applyCredits) == "function" then
+    applyCredits(Window)
+end
 Functions.Notify({ Title = "Successfully loaded in " .. math.floor((tick() - LoadStart) * 1000) / 1000 .. " seconds." , Body = "Press '" .. tostring(Options.MenuKeybind.Value) .. "' to toggle the UI."})
