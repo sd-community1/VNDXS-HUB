@@ -19,6 +19,16 @@ local RootPart        = Character:WaitForChild("HumanoidRootPart")
 local CommF_          = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("CommF_")
 
 -- ==================== VNDXS Setup ====================
+if not VNDXS.Interface or not VNDXS.Interface.Library then
+    warn("[VNDXS/BloxFruits] Interface not loaded, retrying...")
+    task.wait(2)
+    VNDXS.Interface = loadstring(game:HttpGet(VNDXS.BaseUrl .. "Components/Interface.luau"))()
+    if not VNDXS.Interface or not VNDXS.Interface.Library then
+        error("[VNDXS/BloxFruits] Interface failed. Aborting.")
+        return
+    end
+end
+
 local Library      = VNDXS.Interface.Library
 local SaveManager  = VNDXS.Interface.SaveManager
 local ThemeManager = VNDXS.Interface.ThemeManager
@@ -393,4 +403,429 @@ task.spawn(function()
                     if s.playing < s.maxPlayers and s.id ~= game.JobId then
                         table.insert(servers, s.id)
                     end
-           
+                end
+                if #servers > 0 then
+                    game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, servers[math.random(1,#servers)])
+                end
+            end
+        end)
+    end
+end)
+
+-- ==================== Window ====================
+local Window = Library:CreateWindow({
+    Title        = "VNDXS HUB  •  BLOX FRUITS",
+    Footer       = "v"..VNDXS.Version.."  |  "..BF.CurrentSea.."  |  dsc.gg/vndxshub",
+    NotifySide   = "Right",
+    ShowCustomCursor = false,
+    AutoShow     = true,
+    Center       = true,
+    TabPadding   = 3,
+    MenuFadeTime = 0,
+    CornerRadius = 2,
+})
+
+-- تطبيق الثيم
+if Library.Scheme then
+    Library.Scheme.FontColor       = HexToColor3(Theme.FontColor)
+    Library.Scheme.Main            = HexToColor3(Theme.MainColor)
+    Library.Scheme.Accent          = HexToColor3(Theme.AccentColor)
+    Library.Scheme.Background      = HexToColor3(Theme.BackgroundColor)
+    Library.Scheme.Outline         = HexToColor3(Theme.OutlineColor)
+end
+pcall(function()
+    if Library.SetColors then
+        Library:SetColors({
+            Font       = HexToColor3(Theme.FontColor),
+            Main       = HexToColor3(Theme.MainColor),
+            Accent     = HexToColor3(Theme.AccentColor),
+            Background = HexToColor3(Theme.BackgroundColor),
+            Outline    = HexToColor3(Theme.OutlineColor),
+        })
+    end
+end)
+
+-- ==================== Tabs ====================
+local Tabs = {
+    Info     = Window:AddTab("Info",      "user"),
+    Farm     = Window:AddTab("Auto Farm", "home"),
+    ESP      = Window:AddTab("ESP",       "eye"),
+    Teleport = Window:AddTab("Teleport",  "map-pin"),
+    Player   = Window:AddTab("Player",    "zap"),
+    Dungeon  = Window:AddTab("Dungeon",   "swords"),
+    Misc     = Window:AddTab("Misc",      "list-plus"),
+    Server   = Window:AddTab("Server",    "wifi"),
+    Settings = Window:AddTab("Settings",  "settings"),
+}
+
+-- ==================== INFO TAB ====================
+do
+    local UserGroup = Tabs.Info:AddLeftGroupbox("Player Info")
+    pcall(function()
+        local thumb = Players:GetUserThumbnailAsync(LocalPlayer.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size420x420)
+        UserGroup:AddImage("Avatar", { Image = thumb })
+    end)
+    UserGroup:AddLabel("Username: "   .. LocalPlayer.Name, true)
+    UserGroup:AddLabel("User ID: "    .. tostring(LocalPlayer.UserId), true)
+    UserGroup:AddLabel("Current Sea: ".. BF.CurrentSea, true)
+    UserGroup:AddLabel("Hub: VNDXS HUB v"..VNDXS.Version, true)
+
+    local ChangelogGroup = Tabs.Info:AddRightGroupbox("Changelog")
+    local changelog = {
+        "VNDXS HUB v1.0.0",
+        "<font color='rgb(255,215,0)'>★ Blox Fruits Support Added</font>",
+        "<font color='rgb(30,144,255)'>+ Auto Farm (3 Seas)</font>",
+        "<font color='rgb(30,144,255)'>+ Kill Aura</font>",
+        "<font color='rgb(30,144,255)'>+ Full ESP System</font>",
+        "<font color='rgb(30,144,255)'>+ Teleport All Islands</font>",
+        "<font color='rgb(30,144,255)'>+ Server Hop</font>",
+        "<font color='rgb(30,144,255)'>+ Player Mods</font>",
+    }
+    for _, v in ipairs(changelog) do
+        ChangelogGroup:AddLabel(v, true)
+    end
+end
+
+-- ==================== AUTO FARM TAB ====================
+do
+    local FarmGroup = Tabs.Farm:AddLeftGroupbox("Farming")
+
+    FarmGroup:AddDropdown("WeaponSelect", {
+        Text   = "Weapon Type",
+        Values = { "Melee", "Sword", "Blox Fruit" },
+        Default = 1,
+        Callback = function(v) ChooseWeapon = v end,
+    })
+
+    FarmGroup:AddDropdown("AttackSpeed", {
+        Text   = "Attack Speed",
+        Values = { "Normal", "Fast", "Super Fast" },
+        Default = 2,
+        Callback = function(v)
+            if v == "Normal"     then _G.Fast_Delay = 0.5
+            elseif v == "Fast"   then _G.Fast_Delay = 0.1
+            else                      _G.Fast_Delay = 0
+            end
+        end,
+    })
+
+    FarmGroup:AddToggle("AutoFarm", {
+        Text    = "Auto Farm Level",
+        Default = false,
+        Callback = function(v)
+            _G.AutoLevel = v
+            if not v then Tween(RootPart.CFrame) end
+        end,
+    })
+
+    FarmGroup:AddToggle("KillAura", {
+        Text    = "Kill Aura (Near Mobs)",
+        Default = false,
+        Callback = function(v) _G.AutoNear = v end,
+    })
+
+    FarmGroup:AddToggle("AutoChest", {
+        Text    = "Auto Farm Chest",
+        Default = false,
+        Callback = function(v) _G.AutoChest = v end,
+    })
+
+    FarmGroup:AddToggle("AutoMastery", {
+        Text    = "Auto Mastery",
+        Default = false,
+        Callback = function(v) _G.AutoMastery = v end,
+    })
+
+    -- اختيار المنطقة اليدوي
+    local AreaGroup = Tabs.Farm:AddRightGroupbox("Manual Area")
+
+    local firstSeaAreas  = {"Bandit","Monkey","Gorilla","Pirate","Brute","Desert Bandit","Desert Officer","Snow Bandit","Snowman","Chief Petty Officer","Sky Bandit","Dark Master","Prisoner","Dangerous Prisoner","Toga Warrior","Gladiator","Military Soldier","Military Spy","Fishman Warrior","Fishman Commando","Shanda","Royal Soldier","Galley Captain"}
+    local secondSeaAreas = {"Raider","Mercenary","Swan Pirate","Zombie","Snow Trooper","Lab Subordinate","Horned Warrior","Lava Pirate","Sea Soldier"}
+    local thirdSeaAreas  = {"Forest Pirate","Marine Recruits","Sea Soldier","Guard","Demonic Soul"}
+
+    local currentAreas = BF.First_Sea and firstSeaAreas or BF.Second_Sea and secondSeaAreas or thirdSeaAreas
+
+    AreaGroup:AddDropdown("AreaSelect", {
+        Text   = "Select Monster",
+        Values = currentAreas,
+        Default = 1,
+        Callback = function(v)
+            SelectMonster = v
+            CheckLevel()
+        end,
+    })
+end
+
+-- ==================== ESP TAB ====================
+do
+    local ESPGroup = Tabs.ESP:AddLeftGroupbox("ESP Settings")
+
+    ESPGroup:AddToggle("ESPPlayerToggle", {
+        Text    = "Player ESP",
+        Default = false,
+        Callback = function(v) ESPPlayer = v end,
+    })
+
+    ESPGroup:AddToggle("FruitESPToggle", {
+        Text    = "Devil Fruit ESP",
+        Default = false,
+        Callback = function(v) DevilFruitESP = v end,
+    })
+
+    ESPGroup:AddToggle("ChestESPToggle", {
+        Text    = "Chest ESP",
+        Default = false,
+        Callback = function(v) ChestESP = v end,
+    })
+
+    ESPGroup:AddToggle("IslandESPToggle", {
+        Text    = "Island ESP",
+        Default = false,
+        Callback = function(v) IslandESP = v end,
+    })
+
+    ESPGroup:AddToggle("FlowerESPToggle", {
+        Text    = "Flower ESP",
+        Default = false,
+        Callback = function(v) FlowerESP = v end,
+    })
+end
+
+-- ==================== TELEPORT TAB ====================
+do
+    local TpGroup = Tabs.Teleport:AddLeftGroupbox(BF.CurrentSea .. " Islands")
+
+    local teleports = {}
+
+    if BF.First_Sea then
+        teleports = {
+            { "Starter Island",    CFrame.new(1038, 41, 1576)   },
+            { "Jungle",            CFrame.new(-1448, 50, 63)    },
+            { "Pirate Village",    CFrame.new(-1201, 40, 3857)  },
+            { "Desert",            CFrame.new(984, 16, 4417)    },
+            { "Snow Island",       CFrame.new(1356, 105, -1328) },
+            { "Marine Fortress",   CFrame.new(-4931, 65, 4121)  },
+            { "Sky Island",        CFrame.new(-4955, 365, -2908)},
+            { "Prison",            CFrame.new(4937, 0, 649)     },
+            { "Colosseum",         CFrame.new(-1872, 49, -2913) },
+            { "Magma Village",     CFrame.new(-5369, 61, 8556)  },
+            { "Fishman Island",    CFrame.new(60844, 98, 1298)  },
+            { "Skypiea",           CFrame.new(-7685, 5601, -441)},
+            { "Fountain City",     CFrame.new(5677, 92, 4966)   },
+        }
+    elseif BF.Second_Sea then
+        teleports = {
+            { "Kingdom of Rose",   CFrame.new(-4191, 260, 970)  },
+            { "Fountain City",     CFrame.new(1093, 107, -3247) },
+            { "Graveyard",         CFrame.new(-4584, 58, 4196)  },
+            { "Snow Mountain",     CFrame.new(-5179, 413, 1247) },
+            { "Hot & Cold",        CFrame.new(3036, 117, 3059)  },
+            { "Forgotten Island",  CFrame.new(-4782, 411, -2014)},
+            { "Lava Island",       CFrame.new(4404, 167, 1818)  },
+            { "Underwater City",   CFrame.new(-267, 18, -1601)  },
+        }
+    elseif BF.Third_Sea then
+        teleports = {
+            { "Ushanka Bear",      CFrame.new(4829, 59, 1085)   },
+            { "Port Town",         CFrame.new(-4645, 63, 3381)  },
+            { "Floating Turtle",   CFrame.new(-267, 18, -1601)  },
+            { "Haunted Castle",    CFrame.new(3284, 75, 3150)   },
+            { "Sea of Treats",     CFrame.new(-2909, 840, 6210) },
+        }
+    end
+
+    for _, tp in ipairs(teleports) do
+        TpGroup:AddButton(tp[1], function()
+            pcall(function()
+                RootPart.CFrame = tp[2]
+            end)
+            Library:Notify("Teleported to " .. tp[1])
+        end)
+    end
+end
+
+-- ==================== PLAYER TAB ====================
+do
+    local PlayerGroup = Tabs.Player:AddLeftGroupbox("Movement")
+
+    PlayerGroup:AddSlider("WalkSpeedSlider", {
+        Text    = "Walk Speed",
+        Default = 16,
+        Min     = 16,
+        Max     = 100,
+        Rounding = 0,
+        Callback = function(v)
+            pcall(function()
+                GetHuman().WalkSpeed = v
+            end)
+        end,
+    })
+
+    PlayerGroup:AddSlider("JumpPowerSlider", {
+        Text    = "Jump Power",
+        Default = 50,
+        Min     = 50,
+        Max     = 300,
+        Rounding = 0,
+        Callback = function(v)
+            pcall(function()
+                GetHuman().JumpPower = v
+            end)
+        end,
+    })
+
+    PlayerGroup:AddToggle("InfiniteJump", {
+        Text    = "Infinite Jump",
+        Default = false,
+        Callback = function(v)
+            _G.InfiniteJump = v
+        end,
+    })
+
+    -- Infinite Jump handler
+    UserInputService_InfiniteJump = game:GetService("UserInputService")
+    task.spawn(function()
+        UserInputService_InfiniteJump.JumpRequest:Connect(function()
+            if _G.InfiniteJump then
+                pcall(function() GetHuman():ChangeState(Enum.HumanoidStateType.Jumping) end)
+            end
+        end)
+    end)
+
+    local ProtectGroup = Tabs.Player:AddRightGroupbox("Protection")
+
+    ProtectGroup:AddToggle("AntiBanToggle", {
+        Text    = "Anti Ban",
+        Default = true,
+        Callback = function(v)
+            if v then AntiBan() end
+        end,
+    })
+
+    ProtectGroup:AddToggle("AntiAFKToggle", {
+        Text    = "Anti AFK",
+        Default = true,
+    })
+end
+
+-- ==================== DUNGEON TAB ====================
+do
+    local DungeonGroup = Tabs.Dungeon:AddLeftGroupbox("Raid")
+
+    DungeonGroup:AddToggle("AutoRaid", {
+        Text    = "Auto Raid",
+        Default = false,
+        Callback = function(v)
+            _G.AutoRaid = v
+            if v then
+                task.spawn(function()
+                    while _G.AutoRaid do
+                        pcall(function()
+                            CommF_:InvokeServer("AutoRaid")
+                        end)
+                        task.wait(1)
+                    end
+                end)
+            end
+        end,
+    })
+
+    DungeonGroup:AddButton("Start Raid", function()
+        pcall(function()
+            CommF_:InvokeServer("StartRaid", "Pirates Millitary")
+        end)
+        Library:Notify("Raid started!")
+    end)
+end
+
+-- ==================== MISC TAB ====================
+do
+    local MiscGroup = Tabs.Misc:AddLeftGroupbox("Miscellaneous")
+
+    MiscGroup:AddToggle("FPSBoost", {
+        Text    = "FPS Boost",
+        Default = false,
+        Callback = function(v)
+            settings().Rendering.QualityLevel = v and 1 or 10
+        end,
+    })
+
+    MiscGroup:AddButton("Redeem All Codes", function()
+        local codes = {
+            "STAFFEL","Sub2UncleKizaru","Enyu_is_Pro","Magicbus",
+            "JCWK","Starcodeheo","Sub2Daigrock","Bluxxy",
+            "Sub2OfficialNoobie","Fudd10","BIGNEWS","Sub2Fer999",
+        }
+        task.spawn(function()
+            for _, code in ipairs(codes) do
+                pcall(function()
+                    CommF_:InvokeServer("Redeem", code)
+                end)
+                task.wait(0.5)
+            end
+            Library:Notify("All codes redeemed!")
+        end)
+    end)
+
+    MiscGroup:AddToggle("AutoMasteryToggle", {
+        Text    = "Auto Mastery Farm",
+        Default = false,
+        Callback = function(v) _G.AutoMastery = v end,
+    })
+
+    local MiscRight = Tabs.Misc:AddRightGroupbox("Stats Boost")
+
+    MiscRight:AddButton("Max Stats", function()
+        pcall(function()
+            CommF_:InvokeServer("AddStat", "Defense",  LocalPlayer.Data.StatPoints.Value)
+            CommF_:InvokeServer("AddStat", "Melee",    LocalPlayer.Data.StatPoints.Value)
+            CommF_:InvokeServer("AddStat", "Sword",    LocalPlayer.Data.StatPoints.Value)
+            CommF_:InvokeServer("AddStat", "Gun",      LocalPlayer.Data.StatPoints.Value)
+            CommF_:InvokeServer("AddStat", "BloxFruit",LocalPlayer.Data.StatPoints.Value)
+        end)
+        Library:Notify("Stats maxed!")
+    end)
+end
+
+-- ==================== SERVER TAB ====================
+do
+    local ServerGroup = Tabs.Server:AddLeftGroupbox("Server Hop")
+
+    ServerGroup:AddToggle("ServerHopToggle", {
+        Text    = "Auto Server Hop",
+        Default = false,
+        Callback = function(v) _G.ServerHop = v end,
+    })
+
+    ServerGroup:AddButton("Hop Now", function()
+        pcall(function()
+            local result = game:HttpGet("https://games.roblox.com/v1/games/"..game.PlaceId.."/servers/Public?limit=100")
+            local data   = game:GetService("HttpService"):JSONDecode(result)
+            local servers = {}
+            for _, s in ipairs(data.data or {}) do
+                if s.playing < s.maxPlayers and s.id ~= game.JobId then
+                    table.insert(servers, s.id)
+                end
+            end
+            if #servers > 0 then
+                Library:Notify("Hopping to new server...")
+                task.wait(1)
+                game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, servers[math.random(1,#servers)])
+            else
+                Library:Notify("No servers found.")
+            end
+        end)
+    end)
+
+    local StatsGroup = Tabs.Server:AddRightGroupbox("Server Info")
+    pcall(function()
+        StatsGroup:AddLabel("Place ID: "..tostring(game.PlaceId), true)
+        StatsGroup:AddLabel("Job ID: "..tostring(game.JobId):sub(1,12).."...", true)
+        StatsGroup:AddLabel("Players: "..tostring(#Players:GetChildren()), true)
+    end)
+end
+
+-- ==================== SETTINGS TAB ====================
+VNDXS.Interface.ApplySettingsTab(Window)
+
+Library:Notify("VNDXS HUB loaded!  |  "..BF.CurrentSea, 5)
