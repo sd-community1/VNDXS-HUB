@@ -29,8 +29,17 @@ local Interface = {
 }
 
 if not Interface.Library then
-    error("[VNDXS] UI Library failed to load.")
-    return
+    warn("[VNDXS] Obsidian failed, trying fallback...")
+    task.wait(1)
+    local ok, result = pcall(function()
+        return loadstring(game:HttpGet("https://raw.githubusercontent.com/deividcomsono/Obsidian/refs/heads/main/Library.lua"))()
+    end)
+    if ok then
+        Interface.Library = result
+    else
+        error("[VNDXS] UI Library failed completely. Check your internet connection.")
+        return
+    end
 end
 
 -- ==================== ثيم VNDXS الإجباري ====================
