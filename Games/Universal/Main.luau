@@ -1,27 +1,17 @@
-local Services = setmetatable({}, {
-    __index = function(self, Name)
-        if VNDXS.Environment.cloneref then
-            return VNDXS.Environment.cloneref(game:GetService(Name))
-        else
-            return game:GetService(Name)
-        end
-    end
+--[[
+    VNDXS HUB - Universal
+    يعمل في أي لعبة غير مدعومة رسمياً
+    يوفر أدوات عامة: Speed، Jump، ESP بسيط
+]]
+
+local LocalPlayer = game:GetService("Players").LocalPlayer
+local Library     = VNDXS.Interface.Library
+
+-- إشعار بسيط بدون رسالة "sorry"
+game:GetService("StarterGui"):SetCore("SendNotification", {
+    Title    = "VNDXS HUB",
+    Text     = "Running in general mode. Join DOORS or Blox Fruits for full features.",
+    Duration = 6,
 })
 
-local Bindable = Instance.new("BindableFunction")
-Bindable.OnInvoke = function(Response)
-    local Success, Result = pcall(function()
-        toclipboard("https://dsc.gg/vndxshub")
-    end)
-    if not Success then
-        Services.LocalPlayer:Kick("Failed to copy invite.\nhttps://dsc.gg/vndxshub")
-    end
-end
-
-Services.StarterGui:SetCore("SendNotification", {
-    Title = "VNDXS Hub",
-    Text = "Only DOORS is supported right now, sorry :)",
-    Duration = 10,
-    Button1 = "Copy Discord Invite",
-    Callback = Bindable,
-})
+Library:Notify("General mode active.", 4)
