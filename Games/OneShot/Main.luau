@@ -468,12 +468,20 @@ RunService.RenderStepped:Connect(function()
     if AimbotEnabled and UserInput:IsMouseButtonPressed(Enum.UserInputType.MouseButton2) then
         local target = GetBestTarget()
         if target then
-            local parts  = GetCharParts(target)
-            local tPart  = parts and parts[AimbotPart] or (parts and parts.Head)
+            local parts = GetCharParts(target)
+            local tPart = parts and parts[AimbotPart] or (parts and parts.Head)
             if tPart then
-                local predPos    = GetPredictedPosition(target, tPart)
-                local targetCF   = CFrame.new(Camera.CFrame.Position, predPos)
-                Camera.CFrame    = Camera.CFrame:Lerp(targetCF, AimbotSmooth)
+                local predPos        = GetPredictedPosition(target, tPart)
+                local screenTarget, onScreen = WorldToViewport(predPos)
+                if onScreen then
+                    local screenCenter   = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)
+                    local delta          = screenTarget - screenCenter
+                    -- mousemoverel يحرك الماوس فعلياً مما يحرك الكاميرا
+                    mousemoverel(
+                        delta.X * AimbotSmooth,
+                        delta.Y * AimbotSmooth
+                    )
+                end
             end
         end
     end
@@ -532,18 +540,20 @@ if SilentAimEnabled then
 end
 
 -- ===== No Recoil =====
-task.spawn(function()
-    while task.wait() do
-        if NoRecoilEnabled then
-            pcall(function()
-                local tool = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildWhichIsA("Tool")
-                if tool then
-                    -- إعادة ضبط زاوية الكاميرا
-                    Camera.CFrame = CFrame.new(Camera.CFrame.Position, Camera.CFrame.LookVector + Camera.CFrame.Position)
-                end
-            end)
-        end
+local LastCameraCF = Camera.CFrame
+RunService.RenderStepped:Connect(function()
+    if NoRecoilEnabled then
+        pcall(function()
+            local currentLook = Camera.CFrame.LookVector
+            local lastLook    = LastCameraCF.LookVector
+            -- نحسب الارتداد الرأسي ونعوضه
+            local recoilY = math.asin(currentLook.Y) - math.asin(lastLook.Y)
+            if math.abs(recoilY) > 0.001 then
+                mousemoverel(0, math.deg(recoilY) * 10)
+            end
+        end)
     end
+    LastCameraCF = Camera.CFrame
 end)
 
 -- ==================== Window ====================
