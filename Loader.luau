@@ -117,9 +117,14 @@ VNDXS.Interface = SafeLoad(BaseUrl .. "Components/Interface.luau", "Interface")
 VNDXS.Analytics = SafeLoad(BaseUrl .. "Components/Analytics.luau", "Analytics")
 
 -- ==================== تشغيل اللعبة ====================
-local currentGame = GameList[game.GameId]
+-- ==================== كشف اللعبة التلقائي ====================
+local currentGame = GameList[game.PlaceId]
+
 if currentGame then
+    warn("[VNDXS] Game detected: " .. currentGame)
     SafeLoad(BaseUrl .. "Games/" .. currentGame .. "/Loader.luau", currentGame)
 else
+    warn("[VNDXS] Game not supported: PlaceId " .. tostring(game.PlaceId))
+    -- لا نوقف السكريبت، نشغل الـ Universal
     SafeLoad(BaseUrl .. "Games/Universal/Loader.luau", "Universal")
 end
