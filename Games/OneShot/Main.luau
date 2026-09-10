@@ -225,6 +225,34 @@ end
 
 Players.PlayerRemoving:Connect(RemoveESPForPlayer)
 
+-- حذف ESP عند موت الشخص وإعادته عند respawn
+Players.PlayerAdded:Connect(function(player)
+    player.CharacterRemoving:Connect(function()
+        -- عند الموت نحذف ESP القديم فوراً
+        RemoveESPForPlayer(player)
+    end)
+    player.CharacterAdded:Connect(function()
+        -- عند الرجوع الـ ESP loop التلقائي سيصنعه خلال ثانيتين
+        task.wait(0.5)
+        if ESPEnabled then
+            GetESPForPlayer(player)
+        end
+    end)
+end)
+
+-- نطبق على اللاعبين الموجودين مسبقاً
+for _, player in ipairs(Players:GetPlayers()) do
+    if player ~= LocalPlayer then
+        player.CharacterRemoving:Connect(function()
+            RemoveESPForPlayer(player)
+        end)
+        player.CharacterAdded:Connect(function()
+            task.wait(0.5)
+            if ESPEnabled then GetESPForPlayer(player) end
+        end)
+    end
+end
+
 -- ==================== Aimbot ====================
 local function GetCurrentFOV(dist)
     if AimbotDynFOV then
@@ -284,6 +312,88 @@ local function GetPredictedPosition(player, part)
     local travelT = dist / BulletSpeed
     return part.Position + (data.vel * travelT)
 end
+
+-- ==================== Current Target (Aimbot Core) ====================
+local currentTarget = nil
+local Mouse = LocalPlayer:GetMouse()
+
+-- Target Scanner — يتحدث كل 0.15 ثانية
+task.spawn(function()
+    while task.wait(0.15) do
+        if not AimbotEnabled then
+            currentTarget = nil
+            continue
+        end
+        local best = GetBestTarget()
+        if best then
+            local parts = GetCharParts(best)
+            local tPart = parts and parts[AimbotPart] or (parts and parts.Head)
+            if tPart then
+                currentTarget = PredictionEnabled
+                    and Instance.new("Part") -- placeholder
+                    or tPart
+                -- نستخدم الـ prediction position عبر CFrame مباشرة
+                local predPos = GetPredictedPosition(best, tPart)
+                currentTarget = tPart
+                currentTarget = tPart  -- نستخدمه في Camera.CFrame
+                -- نحفظ الـ predicted position للاستخدام في hookmetamethod
+                _G.VNDXS_TargetPart     = tPart
+                _G.VNDXS_TargetPredPos  = predPos
+            else
+                currentTarget = nil
+            end
+        else
+            currentTarget = nil
+            _G.VNDXS_TargetPart    = nil
+            _G.VNDXS_TargetPredPos = nil
+        end
+    end
+end)
+
+-- hookmetamethod — يعيد توجيه Mouse.Hit و Mouse.Target للهدف
+local oldIndex
+pcall(function()
+    oldIndex = hookmetamethod(game, "__index", function(t, k)
+        if AimbotEnabled and t == Mouse and currentTarget then
+            if k == "Hit" then
+                local pos = _G.VNDXS_TargetPredPos or currentTarget.Position
+                return CFrame.new(pos)
+            elseif k == "Target" then
+                return currentTarget
+            end
+        end
+        return oldIndex(t, k)
+    end)
+end)
+
+-- ==================== ESP Refresh Loop (كل ثانيتين) ====================
+-- يلتقط اللاعبين الجدد ومن ماتوا وعادوا
+task.spawn(function()
+    while task.wait(2) do
+        if not ESPEnabled then continue end
+        pcall(function()
+            -- نتحقق من كل لاعب
+            for _, player in ipairs(Players:GetPlayers()) do
+                if player == LocalPlayer then continue end
+                local char = player.Character
+                if not char then
+                    -- لاعب بدون character (ميت) — نحذف ESP القديم
+                    RemoveESPForPlayer(player)
+                    continue
+                end
+                -- نتأكد أن الـ ESP objects موجودة وصحيحة
+                -- GetESPForPlayer يصنعها تلقائياً لو ما موجودة
+                GetESPForPlayer(player)
+            end
+            -- نحذف ESP للاعبين اللي تركوا اللعبة
+            for player, _ in pairs(ESPObjects) do
+                if not player or not player.Parent then
+                    RemoveESPForPlayer(player)
+                end
+            end
+        end)
+    end
+end)
 
 -- ==================== Main Render Loop ====================
 RunService.RenderStepped:Connect(function()
@@ -464,26 +574,10 @@ RunService.RenderStepped:Connect(function()
         end
     end
 
-    -- ===== Aimbot =====
-    if AimbotEnabled and UserInput:IsMouseButtonPressed(Enum.UserInputType.MouseButton2) then
-        local target = GetBestTarget()
-        if target then
-            local parts = GetCharParts(target)
-            local tPart = parts and parts[AimbotPart] or (parts and parts.Head)
-            if tPart then
-                local predPos        = GetPredictedPosition(target, tPart)
-                local screenTarget, onScreen = WorldToViewport(predPos)
-                if onScreen then
-                    local screenCenter   = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)
-                    local delta          = screenTarget - screenCenter
-                    -- mousemoverel يحرك الماوس فعلياً مما يحرك الكاميرا
-                    mousemoverel(
-                        delta.X * AimbotSmooth,
-                        delta.Y * AimbotSmooth
-                    )
-                end
-            end
-        end
+    -- ===== Aimbot (Camera Lock) =====
+    if AimbotEnabled and currentTarget then
+        local aimPos = _G.VNDXS_TargetPredPos or currentTarget.Position
+        Camera.CFrame = CFrame.new(Camera.CFrame.Position, aimPos)
     end
 
     -- ===== Triggerbot =====
