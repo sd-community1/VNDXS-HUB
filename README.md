@@ -5,7 +5,7 @@
 <br/>
 
 <img src="https://img.shields.io/badge/Version-1.0.0-blueviolet?style=for-the-badge&logo=github&logoColor=white"/>
-<img src="https://img.shields.io/badge/Games-3_Supported-9b59b6?style=for-the-badge&logo=roblox&logoColor=white"/>
+<img src="https://img.shields.io/badge/Games-2_Supported-9b59b6?style=for-the-badge&logo=roblox&logoColor=white"/>
 <img src="https://img.shields.io/badge/License-MIT-blue?style=for-the-badge"/>
 <img src="https://img.shields.io/badge/Open_Source-100%25-success?style=for-the-badge&logo=opensourceinitiative&logoColor=white"/>
 
@@ -63,8 +63,8 @@ VNDXS HUB is **fully open source**. Every line of code is visible, auditable, an
 <table>
 <tr>
 
-<td align="center" width="33%">
-<img src="https://i.postimg.cc/XJPm9PrB/Doors.webp" width="180" style="border-radius:12px"/><br/><br/>
+<td align="center" width="50%">
+<img src="https://i.postimg.cc/XJPm9PrB/Doors.webp" width="200" style="border-radius:12px"/><br/><br/>
 
 **DOORS**
 
@@ -77,20 +77,8 @@ VNDXS HUB is **fully open source**. Every line of code is visible, auditable, an
 
 </td>
 
-<td align="center" width="33%">
-<img src="https://i.postimg.cc/RZRMwM4c/no-Filter.webp" width="180" style="border-radius:12px"/><br/><br/>
-
-**BLOX FRUITS**
-
-<img src="https://api.iconify.design/lucide:check-circle.svg?color=%2322c55e&width=14"/> Auto Level (3 Seas)<br/>
-<img src="https://api.iconify.design/lucide:check-circle.svg?color=%2322c55e&width=14"/> Full ESP · Kill Aura<br/>
-<img src="https://api.iconify.design/lucide:check-circle.svg?color=%2322c55e&width=14"/> Teleport · Server Hop<br/>
-<img src="https://api.iconify.design/lucide:check-circle.svg?color=%2322c55e&width=14"/> Auto Raid · Codes
-
-</td>
-
-<td align="center" width="33%">
-<img src="https://i.postimg.cc/xTNYpvYT/Polish-20260910-074803292.jpg" width="180" style="border-radius:12px"/><br/><br/>
+<td align="center" width="50%">
+<img src="https://i.postimg.cc/xTNYpvYT/Polish-20260910-074803292.jpg" width="200" style="border-radius:12px"/><br/><br/>
 
 **ONE SHOT**
 
@@ -127,7 +115,7 @@ VNDXS HUB is **fully open source**. Every line of code is visible, auditable, an
 | <img src="https://api.iconify.design/lucide:info.svg?color=%231E90FF&width=14"/> **Info Overlay** | Name · Health Bar · Distance · Current Weapon |
 | <img src="https://api.iconify.design/lucide:alert-triangle.svg?color=%23f59e0b&width=14"/> **Tactical Threat ESP** | Auto-colors: Red = High / Orange = Medium / Blue = Normal |
 | <img src="https://api.iconify.design/lucide:arrow-right.svg?color=%231E90FF&width=14"/> **Off-Screen Arrows** | Edge indicators for enemies outside FOV, color = proximity |
-| <img src="https://api.iconify.design/lucide:bomb.svg?color=%23ef4444&width=14"/> **Projectile ESP** | Tracks grenades and throwables with danger radius |
+| <img src="https://api.iconify.design/lucide:bomb.svg?color=%23ef4444&width=14"/> **Projectile ESP** | Tracks grenades and throwables with danger indicators |
 
 </details>
 
@@ -138,9 +126,9 @@ VNDXS HUB is **fully open source**. Every line of code is visible, auditable, an
 
 | Feature | Description |
 |---|---|
-| <img src="https://api.iconify.design/lucide:target.svg?color=%231E90FF&width=14"/> **Aimbot** | Camera locks to target via `hookmetamethod` — fully functional |
+| <img src="https://api.iconify.design/lucide:target.svg?color=%231E90FF&width=14"/> **Aimbot** | Camera locks to target via `hookmetamethod` |
 | <img src="https://api.iconify.design/lucide:circle.svg?color=%231E90FF&width=14"/> **FOV Circle** | Visual adjustable field-of-view ring |
-| <img src="https://api.iconify.design/lucide:sliders.svg?color=%231E90FF&width=14"/> **Smoothness** | Controls snap speed to avoid sudden camera jumps |
+| <img src="https://api.iconify.design/lucide:sliders.svg?color=%231E90FF&width=14"/> **Smoothness** | Controls transition speed |
 | <img src="https://api.iconify.design/lucide:user.svg?color=%231E90FF&width=14"/> **Target Part** | Head / UpperTorso / HumanoidRootPart |
 | <img src="https://api.iconify.design/lucide:wall.svg?color=%231E90FF&width=14"/> **Visibility Check** | Skips enemies behind walls |
 | <img src="https://api.iconify.design/lucide:maximize-2.svg?color=%231E90FF&width=14"/> **Dynamic FOV** | Wider at close range · Narrower at long range |
@@ -177,47 +165,6 @@ VNDXS HUB is **fully open source**. Every line of code is visible, auditable, an
 
 <div align="center">
 
-## <img src="https://api.iconify.design/lucide:swords.svg?color=%231E90FF&width=28&height=28" valign="middle"/> Blox Fruits — Full Feature List
-
-<img src="https://i.postimg.cc/RZRMwM4c/no-Filter.webp" width="120" style="border-radius:10px"/>
-
-</div>
-
-<details>
-<summary><img src="https://api.iconify.design/lucide:sword.svg?color=%231E90FF&width=16"/> &nbsp;<b>Auto Farm</b></summary>
-
-<br/>
-
-| Feature | Description |
-|---|---|
-| <img src="https://api.iconify.design/lucide:trending-up.svg?color=%231E90FF&width=14"/> **Auto Level** | Farms correct mob for your level automatically |
-| <img src="https://api.iconify.design/lucide:map.svg?color=%231E90FF&width=14"/> **3 Sea Support** | First · Second · Third Sea — fully mapped |
-| <img src="https://api.iconify.design/lucide:wind.svg?color=%231E90FF&width=14"/> **Kill Aura** | Auto-attacks nearby enemies |
-| <img src="https://api.iconify.design/lucide:scroll.svg?color=%231E90FF&width=14"/> **Auto Quest** | Accepts and completes quests automatically |
-| <img src="https://api.iconify.design/lucide:sword.svg?color=%231E90FF&width=14"/> **Weapon Select** | Melee / Sword / Blox Fruit |
-
-</details>
-
-<details>
-<summary><img src="https://api.iconify.design/lucide:wrench.svg?color=%231E90FF&width=16"/> &nbsp;<b>Utility</b></summary>
-
-<br/>
-
-| Feature | Description |
-|---|---|
-| <img src="https://api.iconify.design/lucide:map-pin.svg?color=%231E90FF&width=14"/> **Teleport** | One-click teleport to any island |
-| <img src="https://api.iconify.design/lucide:wifi.svg?color=%231E90FF&width=14"/> **Server Hop** | Auto-hops to a new server |
-| <img src="https://api.iconify.design/lucide:shield.svg?color=%231E90FF&width=14"/> **Anti Ban** | Removes detection scripts |
-| <img src="https://api.iconify.design/lucide:timer.svg?color=%231E90FF&width=14"/> **Anti AFK** | Prevents idle kick |
-| <img src="https://api.iconify.design/lucide:gift.svg?color=%231E90FF&width=14"/> **Redeem Codes** | Redeems all active codes instantly |
-| <img src="https://api.iconify.design/lucide:bar-chart.svg?color=%231E90FF&width=14"/> **Max Stats** | Allocates all stat points instantly |
-
-</details>
-
----
-
-<div align="center">
-
 ## <img src="https://api.iconify.design/lucide:door-open.svg?color=%231E90FF&width=28&height=28" valign="middle"/> DOORS — Full Feature List
 
 <img src="https://i.postimg.cc/XJPm9PrB/Doors.webp" width="120" style="border-radius:10px"/>
@@ -225,7 +172,7 @@ VNDXS HUB is **fully open source**. Every line of code is visible, auditable, an
 </div>
 
 <details>
-<summary><img src="https://api.iconify.design/lucide:eye.svg?color=%231E90FF&width=16"/> &nbsp;<b>All Features</b></summary>
+<summary><img src="https://api.iconify.design/lucide:list.svg?color=%231E90FF&width=16"/> &nbsp;<b>All Features</b></summary>
 
 <br/>
 
@@ -236,7 +183,7 @@ VNDXS HUB is **fully open source**. Every line of code is visible, auditable, an
 | <img src="https://api.iconify.design/lucide:package.svg?color=%231E90FF&width=14"/> **Item Notifier** | Alerts on important item spawns |
 | <img src="https://api.iconify.design/lucide:skull.svg?color=%231E90FF&width=14"/> **Death Farm** | Automated death loop for XP/Knobs |
 | <img src="https://api.iconify.design/lucide:zap-off.svg?color=%231E90FF&width=14"/> **Remove Surge** | Disables surge events |
-| <img src="https://api.iconify.design/lucide:door-open.svg?color=%231E90FF&width=14"/> **Lobby Support** | Works in the DOORS lobby too |
+| <img src="https://api.iconify.design/lucide:door-open.svg?color=%231E90FF&width=14"/> **Lobby Support** | Works in the DOORS lobby |
 
 </details>
 
@@ -282,7 +229,6 @@ VNDXS-HUB/
 │
 ├── Games/
 │   ├── Doors/                    ← DOORS support
-│   ├── BloxFruits/               ← Blox Fruits (3 seas)
 │   ├── OneShot/                  ← One Shot combat features
 │   └── Universal/                ← General mode fallback
 │
@@ -315,7 +261,6 @@ VNDXS-HUB/
 | **Developer** | VNDXS |
 | **UI Library** | Obsidian — deividcomsono |
 | **Base Reference** | Abysall Hub — FireBacon (bocaj111004) |
-| **BF Reference** | W_Skinny |
 
 <br/>
 
