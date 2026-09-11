@@ -13,14 +13,12 @@ local BaseUrl = "https://raw.githubusercontent.com/sd-community1/VNDXS-HUB/refs/
 
 local GameList = {
     -- DOORS
-    [6516141723] = "Doors",
-    [6839171747] = "Doors",
-    -- BLOX FRUITS
-    [2753915549] = "BloxFruits",
-    [4442272183] = "BloxFruits",
-    [7449423635] = "BloxFruits",
+    [6516141723]      = "Doors",
+    [6839171747]      = "Doors",
     -- ONE SHOT
     [111600158364583] = "OneShot",
+    -- BLADE BALL
+    [13772394625]     = "BladeBall",
 }
 
 -- SafeLoad
