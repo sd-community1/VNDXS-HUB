@@ -79,7 +79,14 @@ end)
 
 local function GetPing()
     if not Settings.PingBased then return 0.04 end
-    return (NetworkStats and NetworkStats.Value / 1000) or 0.04
+    local ok, ping = pcall(function()
+        if NetworkStats then
+            return NetworkStats:GetValue() / 1000
+        end
+        -- fallback: Stats.Ping
+        return Stats.Ping / 1000
+    end)
+    return (ok and ping) or 0.04
 end
 
 -- ==================== Ball Finder ====================
@@ -142,7 +149,27 @@ task.spawn(function()
     end
 end)
 
--- ==================== Auto Click ====================
+-- ==================== Parry Args Sniffer ====================
+-- يراقب الـ args الحقيقية عند الضغط اليدوي ويحفظها
+local RealParryArgs = {}
+
+pcall(function()
+    local mt = getrawmetatable(game)
+    local old = mt.__namecall
+    setreadonly(mt, false)
+    mt.__namecall = newcclosure(function(self, ...)
+        local method = getnamecallmethod()
+        if method == "FireServer" and self == ParryRemote then
+            local args = {...}
+            if #args > 0 then
+                RealParryArgs = args
+                warn("[VNDXS/BladeBall] Parry args captured: " .. tostring(#args) .. " args")
+            end
+        end
+        return old(self, ...)
+    end)
+    setreadonly(mt, true)
+end)
 local function SendClick(isClashing, ball)
     if not Settings.AutoParry or IsParrying then return end
     local now  = tick()
@@ -155,9 +182,20 @@ local function SendClick(isClashing, ball)
     LastClick   = now
     LastBallHit = ball
 
-    -- الطريقة الأولى: FireServer مباشرة للـ Remote الحقيقي
+    -- الطريقة الأولى: FireServer مع الـ arguments الصحيحة لـ Blade Ball
     if ParryRemote then
-        pcall(function() ParryRemote:FireServer() end)
+        pcall(function()
+            if #RealParryArgs > 0 then
+                -- نستخدم نفس الـ args اللي اللعبة ترسلها يدوياً
+                ParryRemote:FireServer(table.unpack(RealParryArgs))
+            else
+                -- fallback: نجرب بدون args
+                ParryRemote:FireServer()
+                if ball then
+                    pcall(function() ParryRemote:FireServer(ball.CFrame) end)
+                end
+            end
+        end)
     else
         -- الطريقة الثانية: firetouchinterest على الكرة نفسها
         if ball then
