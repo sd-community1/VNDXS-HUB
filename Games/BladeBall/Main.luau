@@ -27,7 +27,6 @@ local Players             = game:GetService("Players")
 local RunService          = game:GetService("RunService")
 local Stats               = game:GetService("Stats")
 local UserInputService    = game:GetService("UserInputService")
-local VirtualInputManager = game:GetService("VirtualInputManager")
 
 local LocalPlayer = Players.LocalPlayer
 local Library     = VNDXS.Interface.Library
@@ -101,23 +100,81 @@ local function IsTargeted()
         or char:FindFirstChild("Highlight") ~= nil
 end
 
+-- ==================== Parry Remote Finder ====================
+-- نبحث عن الـ Remote الحقيقي للـ Parry بدل VirtualInputManager
+local ParryRemote = nil
+
+local function FindParryRemote()
+    -- Blade Ball يستخدم RemoteEvent اسمه "Parry" أو مشابه
+    local remotes = {
+        game:GetService("ReplicatedStorage"):FindFirstChild("Parry"),
+        game:GetService("ReplicatedStorage"):FindFirstChild("ParryEvent"),
+        game:GetService("ReplicatedStorage"):FindFirstChild("Deflect"),
+        game:GetService("ReplicatedStorage"):FindFirstChild("Block"),
+    }
+    for _, r in ipairs(remotes) do
+        if r and r:IsA("RemoteEvent") then
+            return r
+        end
+    end
+    -- fallback: البحث في كل الـ RemoteEvents
+    for _, v in ipairs(game:GetService("ReplicatedStorage"):GetDescendants()) do
+        if v:IsA("RemoteEvent") and (
+            v.Name:lower():find("parry") or
+            v.Name:lower():find("deflect") or
+            v.Name:lower():find("block")
+        ) then
+            return v
+        end
+    end
+    return nil
+end
+
+task.spawn(function()
+    task.wait(3) -- ننتظر اللعبة تتحمل
+    ParryRemote = FindParryRemote()
+    if ParryRemote then
+        warn("[VNDXS/BladeBall] Parry remote found: " .. ParryRemote.Name)
+    else
+        warn("[VNDXS/BladeBall] Parry remote not found, using fallback.")
+    end
+end)
+
 -- ==================== Auto Click ====================
 local function SendClick(isClashing, ball)
     if not Settings.AutoParry or IsParrying then return end
     local now  = tick()
     local cd   = isClashing and Settings.ClashSpeed or Settings.NormalSpeed
 
-    -- منع الضغط المزدوج على نفس الكرة
     if not isClashing and LastBallHit == ball and (now - LastClick) < 0.5 then return end
     if (now - LastClick) < cd then return end
 
-    IsParrying    = true
-    LastClick     = now
-    LastBallHit   = ball
+    IsParrying  = true
+    LastClick   = now
+    LastBallHit = ball
 
-    -- محاكاة ضغطة ماوس يسار
-    VirtualInputManager:SendMouseButtonEvent(0, 0, 0, true,  game, 0)
-    VirtualInputManager:SendMouseButtonEvent(0, 0, 0, false, game, 0)
+    -- الطريقة الأولى: FireServer مباشرة للـ Remote الحقيقي
+    if ParryRemote then
+        pcall(function() ParryRemote:FireServer() end)
+    else
+        -- الطريقة الثانية: firetouchinterest على الكرة نفسها
+        if ball then
+            pcall(function()
+                firetouchinterest(
+                    LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart"),
+                    ball,
+                    0
+                )
+            end)
+        end
+        -- الطريقة الثالثة: نستخدم tool:Activate لو موجود
+        pcall(function()
+            local tool = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildWhichIsA("Tool")
+            if tool and tool.Activated then
+                tool.Activated:Fire()
+            end
+        end)
+    end
 
     task.delay(cd, function() IsParrying = false end)
 end
