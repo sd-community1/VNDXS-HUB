@@ -5,7 +5,7 @@
 VNDXS.SavePath = "BladeBall"
 
 local ok, err = pcall(function()
-    loadstring(game:HttpGet(VNDXS.BaseUrl .. "Games/BladeBall/BladeBall_Main.luau"))()
+    loadstring(game:HttpGet(VNDXS.BaseUrl .. "Games/BladeBall/Main.luau"))()
 end)
 
 if not ok then
