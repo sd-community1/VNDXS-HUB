@@ -3,9 +3,13 @@
     Version: 1.0.0
 ]]
 
-if getgenv().VNDXS then
+if getgenv().VNDXS and getgenv().VNDXS.Loaded == true then
     warn("[VNDXS] Already loaded.")
     return
+elseif getgenv().VNDXS then
+    -- تحمّل قبل لكن فشل — نعيد التهيئة
+    warn("[VNDXS] Previous load incomplete, reloading...")
+    getgenv().VNDXS = nil
 end
 
 local VERSION = "1.0.0"
@@ -117,7 +121,6 @@ end
 VNDXS.Interface = SafeLoad(BaseUrl .. "Components/Interface.luau", "Interface")
 VNDXS.Analytics = SafeLoad(BaseUrl .. "Components/Analytics.luau", "Analytics")
 
--- ==================== تشغيل اللعبة ====================
 -- ==================== كشف اللعبة التلقائي ====================
 local currentGame = GameList[game.PlaceId]
 
@@ -126,6 +129,13 @@ if currentGame then
     SafeLoad(BaseUrl .. "Games/" .. currentGame .. "/Loader.luau", currentGame)
 else
     warn("[VNDXS] Game not supported: PlaceId " .. tostring(game.PlaceId))
-    -- لا نوقف السكريبت، نشغل الـ Universal
     SafeLoad(BaseUrl .. "Games/Universal/Loader.luau", "Universal")
+end
+
+-- نضع Loaded فقط إذا تحملت الواجهة بنجاح
+if VNDXS.Interface and VNDXS.Interface.Library then
+    VNDXS.Loaded = true
+    warn("[VNDXS] Fully loaded successfully.")
+else
+    warn("[VNDXS] Load incomplete — re-execute to retry.")
 end
