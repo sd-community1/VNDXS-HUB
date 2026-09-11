@@ -64,9 +64,18 @@ local IsParrying  = false
 local FrameCount  = 0
 
 -- ==================== Ping ====================
-local NetworkStats = Stats:FindFirstChild("Network")
-    and Stats.Network:FindFirstChild("ServerStatsItem")
-    and Stats.Network.ServerStatsItem:FindFirstChild("Data Ping")
+local NetworkStats = nil
+pcall(function()
+    local network = Stats:FindFirstChild("Network")
+    if network then
+        for _, v in ipairs(network:GetDescendants()) do
+            if v.Name == "Data Ping" then
+                NetworkStats = v
+                break
+            end
+        end
+    end
+end)
 
 local function GetPing()
     if not Settings.PingBased then return 0.04 end
@@ -105,27 +114,20 @@ end
 local ParryRemote = nil
 
 local function FindParryRemote()
-    -- Blade Ball يستخدم RemoteEvent اسمه "Parry" أو مشابه
     local remotes = {
+        game:GetService("ReplicatedStorage"):FindFirstChild("ParryAttempt"), -- ✅ confirmed
         game:GetService("ReplicatedStorage"):FindFirstChild("Parry"),
         game:GetService("ReplicatedStorage"):FindFirstChild("ParryEvent"),
         game:GetService("ReplicatedStorage"):FindFirstChild("Deflect"),
-        game:GetService("ReplicatedStorage"):FindFirstChild("Block"),
     }
     for _, r in ipairs(remotes) do
-        if r and r:IsA("RemoteEvent") then
-            return r
-        end
+        if r and r:IsA("RemoteEvent") then return r end
     end
-    -- fallback: البحث في كل الـ RemoteEvents
     for _, v in ipairs(game:GetService("ReplicatedStorage"):GetDescendants()) do
         if v:IsA("RemoteEvent") and (
             v.Name:lower():find("parry") or
-            v.Name:lower():find("deflect") or
-            v.Name:lower():find("block")
-        ) then
-            return v
-        end
+            v.Name:lower():find("deflect")
+        ) then return v end
     end
     return nil
 end
@@ -513,7 +515,9 @@ end)
 Library:Notify("VNDXS HUB | Blade Ball loaded! ⚔️", 5)
 
 -- تنظيف عند الإغلاق
-Library.Unloaded:Connect(function()
-    if Circle then Circle:Destroy() end
-    if FOVCircle then FOVCircle:Remove() end
-end)
+if Library.Unloaded and typeof(Library.Unloaded) ~= "boolean" then
+    Library.Unloaded:Connect(function()
+        if Circle then pcall(function() Circle:Destroy() end) end
+        if FOVCircle then pcall(function() FOVCircle:Remove() end) end
+    end)
+end
