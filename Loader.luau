@@ -21,8 +21,8 @@ local GameList = {
     [6839171747]      = "Doors",
     -- ONE SHOT
     [111600158364583] = "OneShot",
-    -- BLADE BALL
-    [13772394625]     = "BladeBall",
+    -- MURDER MYSTERY 2
+    [142823291]       = "MM2",
 }
 
 -- SafeLoad
