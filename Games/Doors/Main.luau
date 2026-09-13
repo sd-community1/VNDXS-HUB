@@ -466,7 +466,7 @@ Globals.DoorsNotify = function(NotifyOptions)
 	end)
 end
 
-Globals.STX = loadstring(game:HttpGet("https://raw.githubusercontent.com/sd-community1/VNDXS-HUB/refs/heads/main/Components/STX.luau"))()
+Globals.STX = loadstring(game:HttpGet("https://raw.githubusercontent.com/YOUR_USERNAME/VNDXS-HUB/refs/heads/main/Components/STX.luau"))()
 Functions.Notify = function(Settings)
 	local HiddenContainer = GetHiddenContainer()
 
@@ -4034,23 +4034,42 @@ Functions.QueueObject = function(Object)
 	if not AllowedInstances[Object.Name] and Object.ClassName ~= "ProximityPrompt" and Object.Parent ~= CurrentRooms and not ItemNames[Object.Name] then
 		return
 	end
-	table.insert(Globals.ObjectQueue, Object)
+	-- حد أقصى للـ Queue لمنع الـ memory leak في الطابق الثاني
+	if #Globals.ObjectQueue < 500 then
+		table.insert(Globals.ObjectQueue, Object)
+	end
 end
 
 Globals.QueueDone = true
+
+-- نعالج حتى 5 objects في كل frame بدل 1
+-- ونوقف المعالجة لو الـ queue فارغ لتوفير الأداء
 Connections.QueueConnection = Services.RunService.RenderStepped:Connect(function()
-	local Object = table.remove(Globals.ObjectQueue, 1)
-	if Object then
-		Functions.HandleObject(Object)
+	local budget = math.min(5, #Globals.ObjectQueue)
+	for i = 1, budget do
+		local Object = table.remove(Globals.ObjectQueue, 1)
+		if Object then
+			pcall(Functions.HandleObject, Object)
+		end
 	end
 end)
 
+-- نستخدم task.spawn لكل object بدل إضافتها مرة واحدة
+-- لتوزيع الحمل على أكثر من frame
 for _, Object in Services.Workspace:GetDescendants() do
-	task.spawn(function() Functions.QueueObject(Object) end)
+	task.defer(function() Functions.QueueObject(Object) end)
 end
 
+-- throttle الـ InstanceHandler — لا نعالج كل object فوراً
+local LastQueueTime = 0
 Connections.InstanceHandler = Services.Workspace.DescendantAdded:Connect(function(Object)
-	Functions.QueueObject(Object)
+	local now = tick()
+	if now - LastQueueTime < 0.016 then -- max 60 times/sec
+		task.defer(function() Functions.QueueObject(Object) end)
+	else
+		LastQueueTime = now
+		Functions.QueueObject(Object)
+	end
 end)
 
 for _, Player in Services.Players:GetPlayers() do
@@ -4565,6 +4584,10 @@ Library:OnUnload(function()
 	Globals.SeekNodesFolder:Destroy()
 	Globals.RoomsNodesFolder:Destroy()
 	Globals.ManipulateBody:Destroy()
+
+	-- تنظيف الـ Queue عند الانتقال لمنع تراكم الـ objects القديمة
+	Globals.ObjectQueue = {}
+	warn("[VNDXS/Doors] ObjectQueue cleared on floor transition.")
 
 	local OldAmbient = CurrentRooms:FindFirstChild(tostring(LocalPlayer:GetAttribute("CurrentRoom"))):GetAttribute("Ambient")
 	Services.TweenService:Create(Services.Lighting, TweenInfo.new(0.2, Enum.EasingStyle.Exponential), { Ambient = OldAmbient }):Play()
