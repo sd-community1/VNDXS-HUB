@@ -4,7 +4,7 @@
 
 <br/>
 
-<img src="https://img.shields.io/badge/Version-1.0.0-blueviolet?style=for-the-badge&logo=github&logoColor=white"/>
+<img src="https://img.shields.io/badge/Version-3.2.2-blueviolet?style=for-the-badge&logo=github&logoColor=white"/>
 <img src="https://img.shields.io/badge/Games-3_Supported-9b59b6?style=for-the-badge&logo=roblox&logoColor=white"/>
 <img src="https://img.shields.io/badge/License-MIT-blue?style=for-the-badge"/>
 <img src="https://img.shields.io/badge/Open_Source-100%25-success?style=for-the-badge&logo=opensourceinitiative&logoColor=white"/>
