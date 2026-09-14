@@ -413,6 +413,34 @@ workspace.ChildAdded:Connect(function(child)
     end
 end)
 
+-- ==================== Remote Sniffer (لمعرفة اسم Remote المسدس) ====================
+-- شغّل السكريبت ثم استخدم المسدس مرة واحدة — سيظهر الاسم في الكونسول
+pcall(function()
+    local sniffMT  = getrawmetatable(game)
+    local sniffOld = sniffMT.__namecall
+    setreadonly(sniffMT, false)
+    sniffMT.__namecall = newcclosure(function(self, ...)
+        local method = getnamecallmethod()
+        if method == "FireServer" or method == "InvokeServer" then
+            pcall(function()
+                warn("[VNDXS/MM2] Remote: " .. self.Name .. " | Method: " .. method)
+            end)
+        end
+        return sniffOld(self, ...)
+    end)
+    setreadonly(sniffMT, true)
+
+    -- نوقف الـ sniffer بعد 30 ثانية عشان لا يثقل
+    task.delay(30, function()
+        pcall(function()
+            setreadonly(sniffMT, false)
+            sniffMT.__namecall = sniffOld
+            setreadonly(sniffMT, true)
+        end)
+        warn("[VNDXS/MM2] Remote sniffer stopped.")
+    end)
+end)
+
 -- ==================== Silent Aim (hookmetamethod) ====================
 local RayParams = RaycastParams.new()
 RayParams.IgnoreWater  = true
@@ -445,30 +473,63 @@ pcall(function()
         local args   = {...}
 
         if Settings.SilentAim then
-            -- Silent Aim للسكين
-            if Settings.SilentAimKnife and method == "FireServer" and tostring(self) == "Throw" then
+            local selfName = ""
+            pcall(function() selfName = self.Name end)
+
+            -- Silent Aim للسكين (Throw)
+            if Settings.SilentAimKnife
+                and (method == "FireServer" or method == "InvokeServer")
+                and (selfName == "Throw" or selfName == "ThrowKnife" or selfName == "KnifeThrow")
+            then
                 pcall(function()
                     local target = GetClosestEnemy()
-                    if target then
-                        local root    = GetRoot(target)
-                        local myRoot  = GetRoot(LocalPlayer)
-                        local vel     = root.AssemblyLinearVelocity * Vector3.new(1,0,1)
-                        local dist    = (root.Position - myRoot.Position).Magnitude
-                        local pred    = vel * Settings.Prediction * dist / 100
-                        RayParams.FilterDescendantsInstances = {LocalPlayer.Character}
-                        local ray = workspace:Raycast(myRoot.Position, (root.Position - myRoot.Position + pred).Unit * 500, RayParams)
-                        if ray then args[2] = ray.Position end
+                    if not target then return end
+                    local root   = GetRoot(target)
+                    local myRoot = GetRoot(LocalPlayer)
+                    if not root or not myRoot then return end
+                    local vel  = root.AssemblyLinearVelocity * Vector3.new(1, 0, 1)
+                    local dist = (root.Position - myRoot.Position).Magnitude
+                    local pred = vel * Settings.Prediction * dist / 100
+                    RayParams.FilterDescendantsInstances = {LocalPlayer.Character}
+                    local ray = workspace:Raycast(
+                        myRoot.Position,
+                        (root.Position - myRoot.Position + pred).Unit * 500,
+                        RayParams
+                    )
+                    -- نبدّل الـ argument الأول أو الثاني حسب نوع الـ remote
+                    if ray then
+                        if typeof(args[1]) == "Vector3" then args[1] = ray.Position
+                        elseif typeof(args[2]) == "Vector3" then args[2] = ray.Position
+                        else args[1] = ray.Position end
                     end
                 end)
             end
 
             -- Silent Aim للمسدس (Sheriff → Murderer)
-            if Settings.SilentAimGun and method == "InvokeServer" and tostring(self) == "ShootGun" and Roles.Murderer then
+            if Settings.SilentAimGun
+                and (method == "FireServer" or method == "InvokeServer")
+                and (selfName == "ShootGun" or selfName == "Shoot" or selfName == "GunShoot" or selfName == "Fire")
+            then
                 pcall(function()
-                    local root = GetRoot(Roles.Murderer)
+                    local target = Roles.Murderer and GetRoot(Roles.Murderer) and Roles.Murderer
+                        or GetClosestEnemy()
+                    if not target then return end
+                    local root = GetRoot(target)
+                    if not root then return end
                     local pred = root.AssemblyLinearVelocity / 40
-                    if math.abs(root.AssemblyLinearVelocity.Y) < 10 then
-                        args[2] = root.Position + pred
+                    local aimPos = root.Position
+                        + (math.abs(root.AssemblyLinearVelocity.Y) < 10 and pred or Vector3.zero)
+                    -- نبدّل أول Vector3 في الـ args
+                    local replaced = false
+                    for i, v in ipairs(args) do
+                        if typeof(v) == "Vector3" then
+                            args[i] = aimPos
+                            replaced = true
+                            break
+                        end
+                    end
+                    if not replaced then
+                        args[1] = aimPos
                     end
                 end)
             end
