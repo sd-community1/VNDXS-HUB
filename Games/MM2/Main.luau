@@ -108,58 +108,58 @@ local function CreateESP(player, color)
     local root = char:FindFirstChild("HumanoidRootPart")
     if not root then return end
 
-    -- نحذف القديم لو موجود
     if ESPObjects[player] then
         pcall(function() ESPObjects[player]:Destroy() end)
     end
 
     local bill = Instance.new("BillboardGui")
-    bill.Name        = "VNDXS_MM2_ESP"
-    bill.AlwaysOnTop = true
-    bill.Size        = UDim2.new(0, 0, 0, 0)
-    bill.StudsOffset = Vector3.new(0, 3, 0)
-    bill.Parent      = root
+    bill.Name            = "VNDXS_MM2_ESP"
+    bill.AlwaysOnTop     = true
+    bill.Size            = UDim2.new(0, 130, 0, 45)  -- حجم مرئي
+    bill.StudsOffset     = Vector3.new(0, 3.5, 0)
+    bill.LightInfluence  = 0
+    bill.Parent          = root
 
     local frame = Instance.new("Frame", bill)
-    frame.Size            = UDim2.new(0, 120, 0, 40)
-    frame.Position        = UDim2.new(0.5, -60, 0, 0)
-    frame.BackgroundColor3 = Color3.new(0,0,0)
+    frame.Size                   = UDim2.new(1, 0, 1, 0)
+    frame.BackgroundColor3       = Color3.new(0, 0, 0)
     frame.BackgroundTransparency = 0.4
-    frame.BorderSizePixel = 0
+    frame.BorderSizePixel        = 0
     Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 6)
 
-    -- خط لوني حسب الدور
     local bar = Instance.new("Frame", frame)
-    bar.Size            = UDim2.new(0, 4, 1, 0)
+    bar.Size             = UDim2.new(0, 4, 1, 0)
+    bar.Position         = UDim2.new(0, 0, 0, 0)
     bar.BackgroundColor3 = color
-    bar.BorderSizePixel = 0
+    bar.BorderSizePixel  = 0
     Instance.new("UICorner", bar).CornerRadius = UDim.new(0, 4)
 
     local nameLabel = Instance.new("TextLabel", frame)
-    nameLabel.Size               = UDim2.new(1, -10, 0.5, 0)
-    nameLabel.Position           = UDim2.new(0, 8, 0, 0)
+    nameLabel.Size                   = UDim2.new(1, -8, 0.5, 0)
+    nameLabel.Position               = UDim2.new(0, 8, 0, 0)
     nameLabel.BackgroundTransparency = 1
-    nameLabel.TextColor3         = Color3.new(1,1,1)
+    nameLabel.TextColor3             = Color3.new(1, 1, 1)
     nameLabel.TextStrokeTransparency = 0.5
-    nameLabel.Font               = Enum.Font.GothamBold
-    nameLabel.TextSize           = 13
-    nameLabel.TextXAlignment     = Enum.TextXAlignment.Left
-    nameLabel.Text               = player.Name
+    nameLabel.Font                   = Enum.Font.GothamBold
+    nameLabel.TextSize               = 12
+    nameLabel.TextXAlignment         = Enum.TextXAlignment.Left
+    nameLabel.TextYAlignment         = Enum.TextYAlignment.Center
+    nameLabel.Text                   = player.Name
 
     local roleLabel = Instance.new("TextLabel", frame)
-    roleLabel.Size               = UDim2.new(1, -10, 0.5, 0)
-    roleLabel.Position           = UDim2.new(0, 8, 0.5, 0)
+    roleLabel.Size                   = UDim2.new(1, -8, 0.5, 0)
+    roleLabel.Position               = UDim2.new(0, 8, 0.5, 0)
     roleLabel.BackgroundTransparency = 1
-    roleLabel.TextColor3         = color
+    roleLabel.TextColor3             = color
     roleLabel.TextStrokeTransparency = 0.5
-    roleLabel.Font               = Enum.Font.Gotham
-    roleLabel.TextSize           = 11
-    roleLabel.TextXAlignment     = Enum.TextXAlignment.Left
+    roleLabel.Font                   = Enum.Font.Gotham
+    roleLabel.TextSize               = 11
+    roleLabel.TextXAlignment         = Enum.TextXAlignment.Left
+    roleLabel.TextYAlignment         = Enum.TextYAlignment.Center
 
     local role = Roles.Murderer == player and "Murderer 🔪"
         or Roles.Sheriff == player and "Sheriff 🔫"
         or "Innocent"
-
     roleLabel.Text = role
 
     ESPObjects[player] = bill
@@ -168,12 +168,14 @@ local function CreateESP(player, color)
     task.spawn(function()
         while bill and bill.Parent do
             task.wait(0.5)
-            local root2 = GetRoot(LocalPlayer)
-            local root3 = GetRoot(player)
-            if root2 and root3 then
-                local dist = math.floor((root2.Position - root3.Position).Magnitude)
-                nameLabel.Text = player.Name .. " [" .. dist .. "m]"
-            end
+            pcall(function()
+                local myRoot = GetRoot(LocalPlayer)
+                local theirRoot = GetRoot(player)
+                if myRoot and theirRoot then
+                    local dist = math.floor((myRoot.Position - theirRoot.Position).Magnitude)
+                    nameLabel.Text = player.Name .. " [" .. dist .. "m]"
+                end
+            end)
         end
     end)
 
@@ -189,18 +191,25 @@ end
 
 local function RefreshAllESP()
     for _, player in ipairs(Players:GetPlayers()) do
-        if player ~= LocalPlayer then
-            if Settings.ESP then
-                local color = Roles.Murderer == player and HexToColor3("FF3333")
-                    or Roles.Sheriff == player and HexToColor3("3399FF")
-                    or HexToColor3("AAAAAA")
-                CreateESP(player, color)
-            else
-                RemoveESP(player)
-            end
+        if player == LocalPlayer then continue end
+        if Settings.ESP then
+            local color = Roles.Murderer == player and HexToColor3("FF3333")
+                or Roles.Sheriff == player and HexToColor3("3399FF")
+                or HexToColor3("AAAAAA")
+            CreateESP(player, color)
+        else
+            RemoveESP(player)
         end
     end
 end
+
+-- ESP loop يتحدث كل ثانيتين ليلتقط الأبرياء الجدد
+task.spawn(function()
+    while task.wait(2) do
+        if not Settings.ESP then continue end
+        RefreshAllESP()
+    end
+end)
 
 -- ==================== Gun Drop ESP ====================
 local GunDropESPs = {}
@@ -233,13 +242,29 @@ end
 local function FarmCoins()
     task.spawn(function()
         while Settings.CoinFarm do
-            task.wait(0.1)
+            task.wait(0.15)
             pcall(function()
-                for _, obj in ipairs(workspace:GetDescendants()) do
-                    if obj.Name == "Coin" and obj:IsA("BasePart") then
-                        local root = GetRoot(LocalPlayer)
-                        if root then
-                            root.CFrame = CFrame.new(obj.Position)
+                local myRoot = GetRoot(LocalPlayer)
+                if not myRoot then return end
+
+                -- MM2 يضع العملات في مجلد معين أو مباشرة في workspace
+                local coinFolders = {
+                    workspace:FindFirstChild("Coins"),
+                    workspace:FindFirstChild("Map") and workspace.Map:FindFirstChild("Coins"),
+                    workspace,
+                }
+
+                for _, folder in ipairs(coinFolders) do
+                    if not folder then continue end
+                    for _, obj in ipairs(folder:GetChildren()) do
+                        -- أسماء العملات الممكنة في MM2
+                        if obj.Name == "Coin"
+                            or obj.Name == "GoldCoin"
+                            or obj.Name == "CoinPickup"
+                            or (obj:IsA("BasePart") and string.find(obj.Name:lower(), "coin"))
+                        then
+                            myRoot.CFrame = CFrame.new(obj.Position)
+                            task.wait(0.05)
                         end
                     end
                 end
