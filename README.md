@@ -282,7 +282,8 @@ VNDXS-HUB/
 |---|---|
 | **Developer** | VNDXS |
 | **UI Library** | Obsidian — deividcomsono |
-| **Base Reference** | Abysall Hub — FireBacon (bocaj111004) |
+| **Doors Reference** | Abysall Hub — FireBacon (bocaj111004) |
+| **OneShoot Reference** | Entirely my own creation |
 | **MM2 Reference** | Open-source MM2 script |
 | **Thanks for reading, everyone.** | ❤️ |
 
