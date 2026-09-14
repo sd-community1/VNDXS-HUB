@@ -284,7 +284,8 @@ VNDXS-HUB/
 | **UI Library** | Obsidian — deividcomsono |
 | **Base Reference** | Abysall Hub — FireBacon (bocaj111004) |
 | **MM2 Reference** | Open-source MM2 script |
-| **Thanks for reading, everyone.** |
+| **Thanks for reading, everyone.** | 
+❤️ |
 
 <br/>
 
